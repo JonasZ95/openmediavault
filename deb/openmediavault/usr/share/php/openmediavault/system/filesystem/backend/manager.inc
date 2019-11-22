@@ -211,11 +211,17 @@ class Manager implements \IteratorAggregate {
 		$cmd->setRedirect2to1();
 		$cmd->execute($output, $exit_code);
 
-		// Exit code 2 means no block devices were found
-		if($exit_code == 2)
-			$output = "";
-		elseif($edit_code != 0)
-			throw new \OMV\ExecException("blkid", $output, $exitStatus);
+		switch ($exit_code) {
+			//Success
+			case 0:
+			break;
+			//No block devices
+			case 2:
+				$output = [];
+			break;
+			default:
+				throw new \OMV\ExecException("blkid", $output, $exitStatus);
+		}
 
 		foreach ($output as $outputk => $outputv) {
 			// Parse command output:
